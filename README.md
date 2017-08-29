@@ -1,5 +1,5 @@
 # Utils
-The Utils package is my base package for programming Fiji plugins.
+The Utils package is my base package for programming Fiji plugins aimed at cell-biology image analysis.
 
 It contains subjects like:
 - Data structures
