@@ -7,3 +7,6 @@ It contains subjects like:
 - Often used mathematical operations
 - Often used measurement techniques
 
+This package uses the following dependencies:
+- The [ImageJ](https://imagej.net) IJ package
+- The [JFreeChart](http://www.jfree.org/jfreechart/) package of JFree.org
