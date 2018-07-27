@@ -68,7 +68,7 @@ public class MaximaFinder3D
 		for (final PointValue maximum : maximaTmp)
 		{
 			// Check if the point hasn't already been suppressed by now
-			if (this.imageMat.get(maximum) >= 0 && maximum.getZcoordinate() != 0 && maximum.getZcoordinate() != this.imageMat.getDepth() - 1)
+			if (this.imageMat.get(maximum) >= 0) // && maximum.getZcoordinate() != 0 && maximum.getZcoordinate() != this.imageMat.getDepth() - 1)
 			{
 				// This point is an actual maximum
 				this.maxima.add(maximum);
@@ -107,6 +107,7 @@ public class MaximaFinder3D
 		final int nrCPUs = this.nCPUs == 0 ? ThreadUtils.getNbCpus() : this.nCPUs;
 		final int partition = (int) Math.ceil((double) this.imageMat.getDepth() / (double) nrCPUs);
 		final Thread[] threads = ThreadUtils.createThreadArray(nrCPUs);
+		@SuppressWarnings("unchecked")
 		final ArrayList<PointValue>[] partialResults = new ArrayList[nrCPUs];
 		for (int ithread = 0; ithread < threads.length; ithread++)
 		{

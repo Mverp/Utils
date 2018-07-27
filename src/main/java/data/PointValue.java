@@ -62,10 +62,43 @@ public class PointValue extends Coordinates implements Comparable<PointValue>
 
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(final Object aPointValue)
+	{
+		if (aPointValue == null)
+		{
+			return false;
+		}
+		if (!PointValue.class.isAssignableFrom(aPointValue.getClass()))
+		{
+			return false;
+		}
+
+		return super.equals(aPointValue) && (((PointValue) aPointValue).getValue() - this.value) < .0000001;
+	}
+
+
+	/**
 	 * @return the value
 	 */
 	public float getValue()
 	{
 		return this.value;
+	}
+
+
+	@Override
+	public int hashCode()
+	{
+		return toString().hashCode();
+	}
+
+
+	@Override
+	public String toString()
+	{
+		return getXcoordinate() + ":" + getYcoordinate() + ":" + getZcoordinate() + ";" + this.value;
 	}
 }

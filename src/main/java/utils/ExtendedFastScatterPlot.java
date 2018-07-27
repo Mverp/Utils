@@ -9,7 +9,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.FastScatterPlot;
 import org.jfree.chart.plot.PlotRenderingInfo;
-import org.jfree.ui.RectangleEdge;
+import org.jfree.chart.ui.RectangleEdge;
 
 /**
  * An extension of the JFreeChart FastScatterPlot to quickly create a scatter plot that can be configured in one go.
@@ -20,9 +20,9 @@ public class ExtendedFastScatterPlot extends FastScatterPlot
 	private static final long serialVersionUID = 1L;
 
 	// The extended scatter plot settings
-	int size;
-	Paint[] color;
-	int shape;
+	private final int size;
+	private final Paint[] color;
+	private final int shape;
 
 
 	/**
@@ -62,17 +62,17 @@ public class ExtendedFastScatterPlot extends FastScatterPlot
 		{
 			for (int i = 0; i < this.getData()[0].length; i++)
 			{
-				if (i < this.color.length)
+				if (this.color == null)
+				{
+					g2.setColor(Color.BLACK);
+				}
+				else if (i < this.color.length)
 				{
 					g2.setPaint(this.color[i]);
 				}
-				else if (this.color != null)
-				{
-					g2.setPaint(this.color[0]);
-				}
 				else
 				{
-					g2.setColor(Color.BLACK);
+					g2.setPaint(this.color[0]);
 				}
 				final float x = this.getData()[0][i];
 				final float y = this.getData()[1][i];

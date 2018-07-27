@@ -242,6 +242,7 @@ public class NucleiSet3D implements Iterable<Nucleus>
 		double shortestDistance = Double.MAX_VALUE;
 		for (final Nucleus nucleus : this.nuclei)
 		{
+			// TODO should be corrected distance
 			final double distance = nucleus.getCoordinates().distanceFromPoint(aPoint);
 			if (distance < shortestDistance)
 			{

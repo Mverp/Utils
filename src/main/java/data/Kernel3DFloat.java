@@ -86,37 +86,42 @@ public class Kernel3DFloat extends Matrix3DFloat
 	public Object[] nextStep()
 	{
 		this.lock.lock();
-		final boolean xContinue = this.directions[0] ? this.xPos < this.parent.getWidth() - 1 : this.xPos > 0;
-		if (xContinue)
+		try
 		{
-			shiftX(this.directions[0]);
-		}
-		else
-		{
-			this.directions[0] = !this.directions[0]; // Flip x direction
-			final boolean yContinue = this.directions[1] ? this.yPos < this.parent.getHeight() - 1 : this.yPos > 0;
-			if (yContinue)
+			final boolean xContinue = this.directions[0] ? this.xPos < this.parent.getWidth() - 1 : this.xPos > 0;
+			if (xContinue)
 			{
-				shiftY(this.directions[1]);
+				shiftX(this.directions[0]);
 			}
 			else
 			{
-				this.directions[1] = !this.directions[1]; // Flip y direction
-				final boolean zContinue = this.directions[2] ? this.zPos < this.parent.getDepth() - 1 : this.zPos > 0;
-				if (zContinue)
+				this.directions[0] = !this.directions[0]; // Flip x direction
+				final boolean yContinue = this.directions[1] ? this.yPos < this.parent.getHeight() - 1 : this.yPos > 0;
+				if (yContinue)
 				{
-					shiftZ(this.directions[2]);
+					shiftY(this.directions[1]);
 				}
 				else
 				{
-					this.lock.unlock();
-					return null;
+					this.directions[1] = !this.directions[1]; // Flip y direction
+					final boolean zContinue = this.directions[2] ? this.zPos < this.parent.getDepth() - 1 : this.zPos > 0;
+					if (zContinue)
+					{
+						shiftZ(this.directions[2]);
+					}
+					else
+					{
+						this.lock.unlock();
+						return null;
+					}
 				}
 			}
 		}
-
+		finally
+		{
+			this.lock.unlock();
+		}
 		final Object[] result = { new Matrix3DFloat(getWidth(), getHeight(), getDepth(), getAsArray()), getPosition() };
-		this.lock.unlock();
 		return result;
 	}
 

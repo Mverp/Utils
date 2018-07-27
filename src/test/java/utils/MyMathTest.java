@@ -7,50 +7,53 @@ import java.util.Random;
 import org.junit.Test;
 
 import data.Coordinates;
-import ij.IJ;
 import ij.ImageStack;
-import testutils.BaseUtilsTest;
 
-public class MyMathTest extends BaseUtilsTest
+public class MyMathTest // extends BaseUtilsTest
 {
 
 	/**
-	 * Draw a (filled) sphere with the colour provided in the ImageProcessor on the coordinates of the given Nucleus. The sphere will be brightest at the centre and slowly fade to black.
+	 * Draw a black spot on an image. For debugging purposes only.
 	 *
 	 * @param aNucleus
-	 *            The Nucleus which provides the Coordinates for the sphere
+	 *            The Nucleus which provides the Coordinates for the circle
 	 * @param aImageStack
-	 *            The ImageStack in which the sphere will be drawn
+	 *            The ImageStack in which the circle will be drawn
 	 * @param aRadius
-	 *            The radius of the sphere
-	 * @param aColour
-	 *            The RGB colour value to be used
-	 * @param aIsOpen
-	 *            Should the circle be filled (false) or open (true)
+	 *            The radius of the circle
 	 */
-	public static void drawSphere(final Coordinates aCoord, final ImageStack aImageStack, final int aRadius)
+	public static void drawDarkCircle(final Coordinates aCoord, final ImageStack aImageStack, final int aRadius)
 	{
 		final double xCoord = aCoord.getXcoordinate();
 		final double yCoord = aCoord.getYcoordinate();
 		final double zCoord = aCoord.getZcoordinate();
 		final int rad = aRadius * aRadius;
-		final int radLow = (aRadius - 2) * (aRadius - 2);
 		for (int x = -aRadius; x <= aRadius; x++)
 			for (int y = -aRadius; y <= aRadius; y++)
-			// for (int z = -aRadius; z <= aRadius; z++)
-			// {
 			{
 				final int dist = x * x + y * y;
 				if (dist <= rad)
 				{
-					if (xCoord + x >= 0 && yCoord + y >= 0 && zCoord >= 0 //
-							&& xCoord + x < aImageStack.getWidth() && yCoord + y < aImageStack.getHeight() && zCoord < aImageStack.getSize())
+					if (xCoord + x >= 0 && yCoord + y >= 0 //
+							&& xCoord + x < aImageStack.getWidth() && yCoord + y < aImageStack.getHeight())
 					{
 						aImageStack.setVoxel((int) xCoord + x, (int) yCoord + y, (int) zCoord, 0);
 					}
-					// }
 				}
 			}
+	}
+
+
+	protected double[] randomDoubles(final int aSize)
+	{
+		final double[] result = new double[aSize];
+		final Random rand = new Random();
+		for (int i = 0; i < aSize; i++)
+		{
+			result[i] = rand.nextDouble();
+		}
+
+		return result;
 	}
 
 
@@ -96,10 +99,10 @@ public class MyMathTest extends BaseUtilsTest
 	public void testCircleSphere()
 	{
 		// Try different combinations of equal x or y coordinates
-		final Coordinates center = MyMath.sphereCentre(new Coordinates(1, 1), new Coordinates(0, 1), new Coordinates(1, 0), new Coordinates(0.5, 0.5, 1));
-		assertEquals(0.5, center.getXcoordinate(), 0);
-		assertEquals(0.5, center.getYcoordinate(), 0);
-		assertEquals(Math.sqrt(0.5), center.getZcoordinate(), 0);
+		final Coordinates center = MyMath.sphereCentre(new Coordinates(100, 100, 25), new Coordinates(0, 100, 25), new Coordinates(100, 0, 25), new Coordinates(50, 50, 25 + 0.5 * Math.sqrt(5000)), 2);
+		assertEquals(50, center.getXcoordinate(), 0);
+		assertEquals(50, center.getYcoordinate(), 0);
+		assertEquals(25, center.getZcoordinate(), 0);
 		// center = MyMath.circleCentre(new Coordinates(0, 0), new Coordinates(0, 1), new Coordinates(1, 0));
 		// assertEquals(0.5, center.getXcoordinate(), 0);
 		// assertEquals(0.5, center.getYcoordinate(), 0);
@@ -131,6 +134,63 @@ public class MyMathTest extends BaseUtilsTest
 	}
 
 
+	//
+	// @Test
+	// public void testConvertFloatsToDoubles()
+	// {
+	// fail("Not yet implemented");
+	// }
+	//
+	//
+	// @Test
+	// public void testCross()
+	// {
+	// fail("Not yet implemented");
+	// }
+	//
+	//
+	// @Test
+	// public void testDeterminant()
+	// {
+	// fail("Not yet implemented");
+	// }
+	//
+	//
+	// @Test
+	// public void testDot()
+	// {
+	// fail("Not yet implemented");
+	// }
+	//
+	//
+	// @Test
+	// public void testGet2DLineFromTwoPoints()
+	// {
+	// fail("Not yet implemented");
+	// }
+	//
+	//
+	// @Test
+	// public void testGetMaximum()
+	// {
+	// fail("Not yet implemented");
+	// }
+	//
+	//
+	// @Test
+	// public void testGetPerpendicularLine()
+	// {
+	// fail("Not yet implemented");
+	// }
+	//
+	//
+	// @Test
+	// public void testGetPlanarDeterminant()
+	// {
+	// fail("Not yet implemented");
+	// }
+	//
+
 	@Test
 	public void testDoCircleCenter()
 	{
@@ -146,7 +206,7 @@ public class MyMathTest extends BaseUtilsTest
 		System.out.println("" + center);
 		System.out.println("" + centerTot);
 		System.out.println("" + radius + "\n");
-		drawSphere(centerTot, IJ.getImage().getImageStack(), (int) radius);
+		// drawDarkCircle(centerTot, IJ.getImage().getImageStack(), (int) radius); // Show circle for debug purposes
 
 		centerTot = new Coordinates(0, 0, 0);
 		center = MyMath.circleCentre(new Coordinates(546, 1), new Coordinates(412, 36), new Coordinates(46, 15.6));
@@ -226,63 +286,6 @@ public class MyMathTest extends BaseUtilsTest
 		System.out.println("" + centerTot);
 	}
 
-
-	//
-	// @Test
-	// public void testConvertFloatsToDoubles()
-	// {
-	// fail("Not yet implemented");
-	// }
-	//
-	//
-	// @Test
-	// public void testCross()
-	// {
-	// fail("Not yet implemented");
-	// }
-	//
-	//
-	// @Test
-	// public void testDeterminant()
-	// {
-	// fail("Not yet implemented");
-	// }
-	//
-	//
-	// @Test
-	// public void testDot()
-	// {
-	// fail("Not yet implemented");
-	// }
-	//
-	//
-	// @Test
-	// public void testGet2DLineFromTwoPoints()
-	// {
-	// fail("Not yet implemented");
-	// }
-	//
-	//
-	// @Test
-	// public void testGetMaximum()
-	// {
-	// fail("Not yet implemented");
-	// }
-	//
-	//
-	// @Test
-	// public void testGetPerpendicularLine()
-	// {
-	// fail("Not yet implemented");
-	// }
-	//
-	//
-	// @Test
-	// public void testGetPlanarDeterminant()
-	// {
-	// fail("Not yet implemented");
-	// }
-	//
 
 	@Test
 	public void testIsAboutZero()

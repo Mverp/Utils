@@ -30,13 +30,14 @@ public class Measurer
 
 		if (aOriginalCoordinates.size() > minimumSize)
 		{
-			final List<Coordinates> purgedList = new ArrayList(aOriginalCoordinates);
+			final List<Coordinates> purgedList = new ArrayList<>(aOriginalCoordinates);
 
 			purgedList.sort(new Comparator<Coordinates>()
 			{
 				@Override
 				public int compare(final Coordinates aCoordinate1, final Coordinates aCoordinate2)
 				{
+					// TODO: corrected distance???
 					final Double c1Distance = aCoordinate1.distanceFromPoint(centreOfMass);
 					final Double c2Distance = aCoordinate2.distanceFromPoint(centreOfMass);
 					return c1Distance.compareTo(c2Distance);
@@ -98,7 +99,7 @@ public class Measurer
 	 *
 	 * @return The average intensity within the given sphere
 	 */
-	public static double getAverageIntensity3D(final Coordinates aCoordinates, final int aRadius, final double aZFactor, final ImagePlus aImage)
+	public static double getAverageIntensity3D(final Coordinates aCoordinates, final double aRadius, final double aZFactor, final ImagePlus aImage)
 	{
 		final int xCoordinate = (int) aCoordinates.getXcoordinate();
 		final int yCoordinate = (int) aCoordinates.getYcoordinate();
@@ -107,9 +108,9 @@ public class Measurer
 		double validPoints = 0;
 		final ImageStack stack = aImage.getStack();
 		final double zRadius = aRadius / aZFactor;
-		for (int x = -aRadius; x <= aRadius; x++)
-			for (int y = -aRadius; y <= aRadius; y++)
-				for (int z = (int) -zRadius; z <= zRadius; z++) // Cast to int explicitely
+		for (int x = (int) -aRadius; x <= aRadius; x++) // Cast to int explicitly
+			for (int y = (int) -aRadius; y <= aRadius; y++) // Cast to int explicitly
+				for (int z = (int) -zRadius; z <= zRadius; z++) // Cast to int explicitly
 					if ((x * x + y * y) / aRadius + (z * z) / zRadius <= 1)
 					{
 						if (xCoordinate + x >= 0 && yCoordinate + y >= 0 && zCoordinate + z >= 0 //
@@ -140,7 +141,7 @@ public class Measurer
 	 *
 	 * @return The average intensity within the given sphere
 	 */
-	public static double getAverageIntensity3D(final Coordinates aCoordinates, final int aRadius, final double aZFactor, final int aChannel, final ImagePlus aImage)
+	public static double getAverageIntensity3D(final Coordinates aCoordinates, final double aRadius, final double aZFactor, final int aChannel, final ImagePlus aImage)
 	{
 		final int curChannel = aImage.getC();
 		final boolean switchChannels = aChannel != curChannel;

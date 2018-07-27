@@ -39,7 +39,8 @@ public final class MyMath
 
 
 	/**
-	 * Calculate the centre of a circle based on three points in the same z-plane.
+	 * Calculate the centre of a circle based on three points based on the X and Y parts of their Coordinates. The z-coordinate is ignored and will be set to 0 unless all points are at the same z-coordinate in which case it will be copied to the
+	 * resulting circle centre Coordinates.
 	 *
 	 * @param aFirstPoint
 	 *            The first point as Coordinates
@@ -102,6 +103,11 @@ public final class MyMath
 		final double bSlope = yDelta_b / xDelta_b;
 		centre.setXcoordinate((aSlope * bSlope * (y1 - y3) + bSlope * (x1 + x2) - aSlope * (x2 + x3)) / (2 * (bSlope - aSlope)));
 		centre.setYcoordinate(-1 * (centre.getXcoordinate() - (x1 + x2) / 2) / aSlope + (y1 + y2) / 2);
+		if (aFirstPoint.getZcoordinate() == aSecondPoint.getZcoordinate() && aSecondPoint.getZcoordinate() == aThirdPoint.getZcoordinate())
+		{
+			// If all points are in the same z-slice, might as well add it to the centre coordinates
+			centre.setZcoordinate(aFirstPoint.getZcoordinate());
+		}
 
 		return centre;
 	}
@@ -239,7 +245,7 @@ public final class MyMath
 
 	/**
 	 * From a list of Coordinates, get the independently lowest and the highest X-, Y- and Z-coordinates.
-	 * 
+	 *
 	 * @param aCoordinates
 	 *            The list of Coordinates
 	 * @return A tuple of Coordinates, with the first one containing the lowest X-, Y-, and Z-coordinates and the second one containing the highest coordinates.
@@ -383,14 +389,21 @@ public final class MyMath
 	 * Get the median value of a list of double values.
 	 *
 	 * @param aDoubles
-	 *            The list of Double values
+	 *            The list of Double values, cannot be empty
 	 *
 	 * @return The double median of the list
 	 */
 	public static double getMedian(final List<Double> aDoubles)
 	{
 		Collections.sort(aDoubles);
-		final double median = aDoubles.get(aDoubles.size() / 2);
+		final int size = aDoubles.size();
+		double median = aDoubles.get(aDoubles.size() / 2); // Note that the rounding down from the double to int cast is countered by starting to count at 0 in the array
+		if (size % 2 == 0)
+		{
+			// Even number of values. Take the average of the two middle numbers.
+			final double midAlt = aDoubles.get((aDoubles.size() / 2) - 1);
+			median = (median + midAlt) / 2;
+		}
 		return median;
 	}
 
@@ -868,76 +881,62 @@ public final class MyMath
 	}
 
 
-	public static Coordinates sphereCentre(final Coordinates aFirstPoint, final Coordinates aSecondPoint, final Coordinates aThirdPoint, final Coordinates aZedPoint)
-	{
-		final Coordinates circleCentre = circleCentre(aFirstPoint, aSecondPoint, aThirdPoint);
-		final double circleRadius = circleCentre.distanceFromPoint(aFirstPoint);
-		Coordinates fourthVector = new Coordinates(aZedPoint.getXcoordinate() - circleCentre.getXcoordinate(), aZedPoint.getYcoordinate() - circleCentre.getYcoordinate(), 0);
-		double fourthX = fourthVector.getXcoordinate();
-		double fourthY = fourthVector.getYcoordinate();
-		double fourthLength = Math.sqrt(fourthX * fourthX + fourthY * fourthY);
-		if (fourthLength <= 0.001) // zedPoint is above the circle centre
-		{
-			fourthVector = new Coordinates(aFirstPoint.getXcoordinate() - circleCentre.getXcoordinate(), aFirstPoint.getYcoordinate() - circleCentre.getYcoordinate(), 0);
-			fourthX = fourthVector.getXcoordinate();
-			fourthY = fourthVector.getYcoordinate();
-			fourthLength = circleRadius;
-		}
-		final Coordinates zedOnCircle = new Coordinates((fourthX * circleRadius / fourthLength) + circleCentre.getXcoordinate(),
-				(fourthY * circleRadius / fourthLength) + circleCentre.getYcoordinate(), aFirstPoint.getZcoordinate());
-		final Coordinates reverseZedOnCircle = new Coordinates(-(fourthX * circleRadius / fourthLength) + circleCentre.getXcoordinate(),
-				-(fourthY * circleRadius / fourthLength) + circleCentre.getYcoordinate(), aFirstPoint.getZcoordinate());
-		final Coordinates zedCircle = circleCentre(aZedPoint, zedOnCircle, reverseZedOnCircle);
-
-		return new Coordinates(circleCentre.getXcoordinate(), circleCentre.getYcoordinate(), zedCircle.getZcoordinate());
-	}
-
-
 	/**
-	 * Checks if the three points given have a pairwise
+	 * Calculate a sphere based on four points that are on its surface. The first three points need to be on the same z-position (i.e. the same depth), while the last point needs to be on a different z-coordinate.
 	 *
-	 * @param pt1
-	 * @param pt2
-	 * @param pt3
-	 * @return
+	 * @param aFirstPoint
+	 *            The coordinates of the first point on the sphere, which need to be on the same Z-Coordinate as aSecondPoint and aThirdPoint
+	 * @param aSecondPoint
+	 *            The coordinates of the second point on the sphere, which need to be on the same Z-Coordinate as aFirstPoint and aThirdPoint
+	 * @param aThirdPoint
+	 *            The coordinates of the third point on the sphere, which need to be on the same Z-Coordinate as aFirstPoint and aSecondPoint
+	 * @param aZedPoint
+	 *            The one point that needs to be on a different Z-coordinate.
+	 * @return The Coordinates of the centre of the sphere as made up by these four points.
 	 */
-	private boolean isPerpendicular(final Coordinates pt1, final Coordinates pt2, final Coordinates pt3)
-	// Check the given point are perpendicular to x or y axis
+	public static Coordinates sphereCentre(final Coordinates aFirstPoint, final Coordinates aSecondPoint, final Coordinates aThirdPoint, final Coordinates aZedPoint, final double aZCooefficient)
 	{
-		final double yDelta_a = Math.abs(pt2.getYcoordinate() - pt1.getYcoordinate());
-		final double xDelta_a = Math.abs(pt2.getXcoordinate() - pt1.getXcoordinate());
-		final double yDelta_b = Math.abs(pt3.getYcoordinate() - pt2.getYcoordinate());
-		final double xDelta_b = Math.abs(pt3.getXcoordinate() - pt2.getXcoordinate());
+		// Start by calculating the sphere slice (i.e. a circle) on the Z-coordinate of the first three points
+		final Coordinates circleCentre = circleCentre(aFirstPoint, aSecondPoint, aThirdPoint);
+		circleCentre.setZcoordinate(aFirstPoint.getZcoordinate());
 
-		// checking whether the line of the two pts are vertical
-		if (xDelta_a <= 0.000000001 && yDelta_b <= 0.000000001)
-		{
-			// TRACE("The points are perpendicular and parallel to x-y axis\n");
-			return false;
-		}
+		// Store the circle radius for later purpose
+		final double circleRadius = circleCentre.distanceFromPoint(aFirstPoint); // No need for correction
 
-		if (yDelta_a <= 0.0000001)
-		{
-			// TRACE(" A line of two point are perpendicular to x-axis 1\n");
-			return true;
-		}
-		else if (yDelta_b <= 0.0000001)
-		{
-			// TRACE(" A line of two point are perpendicular to x-axis 2\n");
-			return true;
-		}
-		else if (xDelta_a <= 0.000000001)
-		{
-			// TRACE(" A line of two point are perpendicular to y-axis 1\n");
-			return true;
-		}
-		else if (xDelta_b <= 0.000000001)
-		{
-			// TRACE(" A line of two point are perpendicular to y-axis 2\n");
-			return true;
-		}
-		else
-			return false;
+		// Get the vector in the x-y plane from the circle centre (which should be on the z-axis of the sphere) to the z-point
+		final Coordinates fourthVector = new Coordinates(aZedPoint.getXcoordinate() - circleCentre.getXcoordinate(), aZedPoint.getYcoordinate() - circleCentre.getYcoordinate(), 0);
+		final double fourthX = fourthVector.getXcoordinate();
+		final double fourthY = fourthVector.getYcoordinate();
+		final double fourthLength = Math.sqrt(fourthX * fourthX + fourthY * fourthY);
+
+		final Coordinates zWithNoX = new Coordinates(circleCentre.getYcoordinate() + fourthLength, aZedPoint.getZcoordinate() * aZCooefficient, circleCentre.getXcoordinate());
+
+		// // Now we need to find two points on the sphere with a different Z-coordinate but with the same x/y plane as aZedPoint to calculate another circle.
+		// // The only points we can be certain to be on the sphere are the points on the first circle, so we will project aZedPoint on that circle to get a on the sphere point that matches the above requirements.
+		// if (fourthLength <= 0.001) // zedPoint is above the circle centre: special case
+		// {
+		// // We can now choose any arbitrary point on the circle as matching up with the aZedPoint where the X/Y plane is concerned.
+		// // In this case, we match up with aFirstPoint, as this is a known point.
+		// fourthVector = new Coordinates(aFirstPoint.getXcoordinate() - circleCentre.getXcoordinate(), aFirstPoint.getYcoordinate() - circleCentre.getYcoordinate(), 0);
+		// fourthX = fourthVector.getXcoordinate();
+		// fourthY = fourthVector.getYcoordinate();
+		// fourthLength = circleRadius;
+		// }
+		// // To project aZedPoint, take the orthagonal of the directional vector, multiply it with the original circle size and use the correct z-coordinate of the circle.
+		// final Coordinates zedOnCircle = new Coordinates((fourthX * circleRadius / fourthLength) + circleCentre.getXcoordinate(),
+		// (fourthY * circleRadius / fourthLength) + circleCentre.getYcoordinate(), aFirstPoint.getZcoordinate());
+		//
+		// // The last point for the z-circle can be retrieved by going in the opposite direction of the original z-vector and map that to the first circle as well
+		// final Coordinates reverseZedOnCircle = new Coordinates(-(fourthX * circleRadius / fourthLength) + circleCentre.getXcoordinate(),
+		// -(fourthY * circleRadius / fourthLength) + circleCentre.getYcoordinate(), aFirstPoint.getZcoordinate());
+
+		final Coordinates zOnCirc1 = new Coordinates(circleCentre.getYcoordinate() + circleRadius, circleCentre.getZcoordinate() * aZCooefficient, circleCentre.getXcoordinate());
+		final Coordinates zOnCirc2 = new Coordinates(circleCentre.getYcoordinate() - circleRadius, circleCentre.getZcoordinate() * aZCooefficient, circleCentre.getXcoordinate());
+		// Finally calculate the circle as created by aZedPoint and its projections
+		final Coordinates zedCircle = circleCentre(zWithNoX, zOnCirc1, zOnCirc2);
+
+		// The sphere center is made up by the X- and Y-coordinates of first circle plus the Z-coordinate of the zedCircle.
+		return new Coordinates(circleCentre.getXcoordinate(), circleCentre.getYcoordinate(), zedCircle.getYcoordinate() / aZCooefficient);
 	}
 
 }

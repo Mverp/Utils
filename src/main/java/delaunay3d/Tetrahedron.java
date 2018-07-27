@@ -19,24 +19,20 @@
 
 package delaunay3d;
 
-import static delaunay3d.V.A;
-import static delaunay3d.V.B;
-import static delaunay3d.V.C;
-import static delaunay3d.V.D;
-import static delaunay3d.utils.math.Geometry.centerSphere;
+import static delaunay3d.V.*;
+import static delaunay3d.utils.math.Geometry.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import data.Coordinates;
 import delaunay3d.utils.collections.IdentitySet;
 
 /**
- * An oriented, delaunay tetrahedral cell. The vertices of the tetrahedron are
- * A, B, C and D. The vertices {A, B, C} are positively oriented with respect to
- * the fourth vertex D.
+ * An oriented, delaunay tetrahedral cell. The vertices of the tetrahedron are A, B, C and D. The vertices {A, B, C} are positively oriented with respect to the fourth vertex D.
  * <p>
  *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
@@ -848,17 +844,14 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 	/**
 	 *
-	 * Perform the 1 -> 4 bistellar flip. This produces 4 new tetrahedron from
-	 * the original tetrahdron, by inserting the new point in the interior of
-	 * the receiver tetrahedron. The star set of the newly inserted point is
-	 * pushed onto the supplied stack.
+	 * Perform the 1 -> 4 bistellar flip. This produces 4 new tetrahedron from the original tetrahdron, by inserting the new point in the interior of the receiver tetrahedron. The star set of the newly inserted point is pushed onto the supplied
+	 * stack.
 	 * <p>
 	 *
 	 * @param n
 	 *            - the inserted point
 	 * @param ears
-	 *            - the stack of oriented faces that make up the ears of the
-	 *            inserted point
+	 *            - the stack of oriented faces that make up the ears of the inserted point
 	 * @return one of the four new tetrahedra
 	 */
 	public Tetrahedron flip1to4(final Vertex n, final List<OrientedFace> ears)
@@ -1060,8 +1053,7 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 
 	/**
-	 * Answer true if the query point is contained in the circumsphere of the
-	 * tetrahedron
+	 * Answer true if the query point is contained in the circumsphere of the tetrahedron
 	 *
 	 * @param query
 	 * @return
@@ -1082,8 +1074,7 @@ public class Tetrahedron implements Iterable<OrientedFace>
 	 * Answer the iterator over the faces of the tetrahedron
 	 * <p>
 	 *
-	 * @return the iterator of the faces, in the order of the index their
-	 *         opposite vertex
+	 * @return the iterator of the faces, in the order of the index their opposite vertex
 	 */
 	@Override
 	public Iterator<OrientedFace> iterator()
@@ -1104,7 +1095,14 @@ public class Tetrahedron implements Iterable<OrientedFace>
 			@Override
 			public OrientedFace next()
 			{
-				return this.faces[this.i++];
+				if (this.i < this.faces.length - 1)
+				{
+					return this.faces[this.i++];
+				}
+				else
+				{
+					throw new NoSuchElementException();
+				}
 			}
 
 
@@ -1118,8 +1116,7 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 
 	/**
-	 * Answer the canonical ordinal of the opposite vertex of the neighboring
-	 * tetrahedron
+	 * Answer the canonical ordinal of the opposite vertex of the neighboring tetrahedron
 	 *
 	 * @param neighbor
 	 * @return
@@ -1155,8 +1152,7 @@ public class Tetrahedron implements Iterable<OrientedFace>
 	 *
 	 * @param v
 	 *            - the vertex
-	 * @return the indicator of this vertex or null if not a vertex of this
-	 *         tetrahedron or the supplied vertex is null
+	 * @return the indicator of this vertex or null if not a vertex of this tetrahedron or the supplied vertex is null
 	 */
 	public V ordinalOf(final Vertex v)
 	{
@@ -1188,9 +1184,7 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 
 	/**
-	 * Answer 1 if the query point is positively oriented with respect to the
-	 * face opposite the vertex, -1 if negatively oriented, 0 if the query point
-	 * is coplanar to the face
+	 * Answer 1 if the query point is positively oriented with respect to the face opposite the vertex, -1 if negatively oriented, 0 if the query point is coplanar to the face
 	 *
 	 * @param face
 	 * @param query
@@ -1215,9 +1209,7 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 
 	/**
-	 * Answer 1 if the query point is positively oriented with respect to the
-	 * face ADB, -1 if negatively oriented, 0 if the query point is coplanar to
-	 * the face
+	 * Answer 1 if the query point is positively oriented with respect to the face ADB, -1 if negatively oriented, 0 if the query point is coplanar to the face
 	 *
 	 * @param query
 	 * @return
@@ -1229,9 +1221,7 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 
 	/**
-	 * Answer 1 if the query point is positively oriented with respect to the
-	 * face BCA, -1 if negatively oriented, 0 if the query point is coplanar to
-	 * the face
+	 * Answer 1 if the query point is positively oriented with respect to the face BCA, -1 if negatively oriented, 0 if the query point is coplanar to the face
 	 *
 	 * @param query
 	 * @return
@@ -1243,9 +1233,7 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 
 	/**
-	 * Answer 1 if the query point is positively oriented with respect to the
-	 * face CBD, -1 if negatively oriented, 0 if the query point is coplanar to
-	 * the face
+	 * Answer 1 if the query point is positively oriented with respect to the face CBD, -1 if negatively oriented, 0 if the query point is coplanar to the face
 	 *
 	 * @param query
 	 * @return
@@ -1257,9 +1245,7 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 
 	/**
-	 * Answer 1 if the query point is positively oriented with respect to the
-	 * face DAC, -1 if negatively oriented, 0 if the query point is coplanar to
-	 * the face
+	 * Answer 1 if the query point is positively oriented with respect to the face DAC, -1 if negatively oriented, 0 if the query point is coplanar to the face
 	 *
 	 * @param query
 	 * @return
@@ -1271,18 +1257,15 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 
 	/**
-	 * Patch the new tetrahedron created by a flip of the receiver by seting the
-	 * neighbor to the value in the receiver
+	 * Patch the new tetrahedron created by a flip of the receiver by seting the neighbor to the value in the receiver
 	 * <p>
 	 *
 	 * @param vOld
-	 *            - the opposing vertex the neighboring tetrahedron in the
-	 *            receiver
+	 *            - the opposing vertex the neighboring tetrahedron in the receiver
 	 * @param n
 	 *            - the new tetrahedron to patch
 	 * @param vNew
-	 *            - the opposing vertex of the neighbor to assign in the new
-	 *            tetrahedron
+	 *            - the opposing vertex of the neighbor to assign in the new tetrahedron
 	 */
 	void patch(final V vOld, final Tetrahedron n, final V vNew)
 	{
@@ -1296,8 +1279,7 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 
 	/**
-	 * Patch the new tetrahedron created by a flip of the receiver by seting the
-	 * neighbor to the value in the receiver
+	 * Patch the new tetrahedron created by a flip of the receiver by seting the neighbor to the value in the receiver
 	 * <p>
 	 *
 	 * @param old
@@ -1377,8 +1359,7 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 
 	/**
-	 * Traverse all the tetradrons in a tetrahedralization, filling in the set
-	 * of all visited tetrahedron and the vertices defining them
+	 * Traverse all the tetradrons in a tetrahedralization, filling in the set of all visited tetrahedron and the vertices defining them
 	 * <p>
 	 *
 	 * @param visited
@@ -1415,9 +1396,7 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 
 	/**
-	 * Traverse the points which define the voronoi face defined by the dual of
-	 * the line segement defined by the center point and the axis. Terminate the
-	 * traversal if we have returned to the originating tetrahedron.
+	 * Traverse the points which define the voronoi face defined by the dual of the line segement defined by the center point and the axis. Terminate the traversal if we have returned to the originating tetrahedron.
 	 * <p>
 	 *
 	 * @param origin
@@ -1446,8 +1425,7 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 
 	/**
-	 * Traverse the points which define the voronoi face defined by the dual of
-	 * the line segement defined by the center point and the axis.
+	 * Traverse the points which define the voronoi face defined by the dual of the line segement defined by the center point and the axis.
 	 * <p>
 	 *
 	 * @param vC
@@ -1486,11 +1464,8 @@ public class Tetrahedron implements Iterable<OrientedFace>
 
 
 	/**
-	 * If the visited set doesn't contain this tetrahedron yet, 'visit' (depends
-	 * on implementation of StarVisitor) this tetrahedron and all its vertices.
-	 * Then execute visitStar on all tetrahedrons that are adjacent to this one
-	 * with the given vertex. This way, all the tertahedrons of which the given
-	 * vertex is a part should be visited.
+	 * If the visited set doesn't contain this tetrahedron yet, 'visit' (depends on implementation of StarVisitor) this tetrahedron and all its vertices. Then execute visitStar on all tetrahedrons that are adjacent to this one with the given vertex.
+	 * This way, all the tertahedrons of which the given vertex is a part should be visited.
 	 *
 	 * @param vC
 	 *            - the center vertex

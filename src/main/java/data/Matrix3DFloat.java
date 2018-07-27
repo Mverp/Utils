@@ -142,7 +142,7 @@ public class Matrix3DFloat
 
 	public void filter(final Matrix3DFloat aFilter)
 	{
-		assert aFilter.getWidth() % 2 == 1 : "Only filters with an odd size are allowed";
+		assert aFilter.getWidth() % 2 != 0 : "Only filters with an odd size are allowed";
 		assert aFilter.getHeight() == aFilter.getWidth() : "Only filters with equal width and height are allowed";
 		assert aFilter.getDepth() == aFilter.getHeight() : "Only filters with equal height and depth are allowed";
 		final Matrix3DFloat orig = this.copy();

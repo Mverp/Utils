@@ -12,9 +12,7 @@ public class NuclearLink<T extends BaseNucleus>
 
 
 	/**
-	 * Create a NuclearLink between the two given Nuclei. The order of the
-	 * Nuclei has no significance and no order can be assumed in any of the
-	 * NuclearLink methods.
+	 * Create a NuclearLink between the two given Nuclei. The order of the Nuclei has no significance and no order can be assumed in any of the NuclearLink methods.
 	 *
 	 * @param aN1
 	 *            One Nucleus end of the link
@@ -26,6 +24,7 @@ public class NuclearLink<T extends BaseNucleus>
 		assert !aN1.equals(aN2) : "Both ends of a nuclear link cannot be the same Nucleus";
 		this.n1 = aN1;
 		this.n2 = aN2;
+		// TODO corrected distance???
 		this.distance = aN1.getCoordinates().distanceFromPoint(aN2.getCoordinates());
 		this.profile = null;
 		this.profileWidth = 0;
@@ -37,8 +36,7 @@ public class NuclearLink<T extends BaseNucleus>
 	 *
 	 * @param aNucleus
 	 *            The Nucleus object
-	 * @return true if the Nucleus isn't null and matches either the n1 Nucleus
-	 *         or the n2 Nucleus
+	 * @return true if the Nucleus isn't null and matches either the n1 Nucleus or the n2 Nucleus
 	 */
 	public boolean contains(final T aNucleus)
 	{
@@ -47,8 +45,7 @@ public class NuclearLink<T extends BaseNucleus>
 
 
 	/**
-	 * Two NuclearLinks are equal if their two Nucleus ends are equal, though
-	 * the order of the ends (n1 vs n2) doesn't matter.
+	 * Two NuclearLinks are equal if their two Nucleus ends are equal, though the order of the ends (n1 vs n2) doesn't matter.
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -70,12 +67,6 @@ public class NuclearLink<T extends BaseNucleus>
 	}
 
 
-	public Line getAsRoi()
-	{
-		return new Line(this.n1.getXcoordinate(), this.n1.getYcoordinate(), this.n2.getXcoordinate(), this.n2.getYcoordinate());
-	}
-
-
 	/**
 	 * Get the coordinates of both ends of the NuclearLink..
 	 *
@@ -85,6 +76,12 @@ public class NuclearLink<T extends BaseNucleus>
 	{
 		final double[] result = { this.n1.getXcoordinate(), this.n1.getYcoordinate(), this.n2.getXcoordinate(), this.n2.getYcoordinate() };
 		return result;
+	}
+
+
+	public Line getAsRoi()
+	{
+		return new Line(this.n1.getXcoordinate(), this.n1.getYcoordinate(), this.n2.getXcoordinate(), this.n2.getYcoordinate());
 	}
 
 

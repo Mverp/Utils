@@ -137,17 +137,20 @@ public class NucleiDataVisualiser
 	 * @param aRadius
 	 *            The radius of the circle
 	 * @param aColour
-	 *            The RGB colour value to be used
+	 *            The RGB colour value to be used. Overruled by aOriginal image processor if that one is used
 	 * @param aIsOpen
 	 *            Should the circle be filled (false) or open (true)
+	 * @param aOriginal
+	 *            The (optional) image processor which will be used to copy image information in the circle from the exact same spot (in x,y). Overrules the colour setting if not null
 	 */
-	public static void drawCirle(final BaseNucleus aNucleus, final ImageProcessor aImageProcessor, final int aRadius, final int aColour, final boolean aIsOpen)
+	public static void drawCirle(final BaseNucleus aNucleus, final ImageProcessor aImageProcessor, final int aRadius, final int aColour, final boolean aIsOpen, final ImageProcessor aOriginal)
 	{
 		final double xCoord = aNucleus.getXcoordinate();
 		final double yCoord = aNucleus.getYcoordinate();
 		final int rad = aRadius * aRadius;
 		final int radLow = (aRadius - 2) * (aRadius - 2);
 		for (int x = -aRadius; x <= aRadius; x++)
+		{
 			for (int y = -aRadius; y <= aRadius; y++)
 			{
 				final int dist = x * x + y * y;
@@ -156,11 +159,19 @@ public class NucleiDataVisualiser
 					if (xCoord + x >= 0 && yCoord + y >= 0 //
 							&& xCoord + x < aImageProcessor.getWidth() && yCoord + y < aImageProcessor.getHeight())
 					{
-						final int colour = aIsOpen ? aColour : lightenColour(aColour, ((aRadius - Math.sqrt(x * x + y * y) + 1) / (aRadius + 1)));
-						aImageProcessor.setf((int) xCoord + x, (int) yCoord + y, colour);
+						if (aOriginal != null)
+						{
+							aImageProcessor.setf((int) xCoord + x, (int) yCoord + y, aOriginal.getf((int) xCoord + x, (int) yCoord + y));
+						}
+						else
+						{
+							final int colour = aIsOpen ? aColour : lightenColour(aColour, ((aRadius - Math.sqrt(x * x + y * y) + 1) / (aRadius + 1)));
+							aImageProcessor.setf((int) xCoord + x, (int) yCoord + y, colour);
+						}
 					}
 				}
 			}
+		}
 	}
 
 
@@ -196,6 +207,41 @@ public class NucleiDataVisualiser
 					{
 						final int colour = aIsOpen ? aColour : lightenColour(aColour, ((double) aRadius - Math.max(x, y)) / aRadius);
 						aImageStack.setVoxel((int) xCoord + x, (int) yCoord + y, (int) zCoord, colour);
+					}
+				}
+			}
+	}
+
+
+	/**
+	 * Draw a diamond with the colour provided in the ImageProcessor on the coordinates. The diamond will be brightest at the centre and slowly fade to black. Alternatively, the diamond will be open and of equal colour throughout. The choice of this
+	 * is given with a parameter.
+	 *
+	 * @param Coordinates
+	 *            The Coordinates for the diamond
+	 * @param aImageProcessor
+	 *            The ImageProcessor in which the diamond will be drawn
+	 * @param aColour
+	 *            The RGB colour value to be used
+	 * @param aIsOpen
+	 *            If true, the diamond will be a ring, false it will be filled.
+	 */
+	public static void drawDiamond(final Coordinates aCoordinates, final ImageProcessor aImageProcessor, final int aRadius, final int aColour, final boolean aIsOpen)
+	{
+		final double xCoord = aCoordinates.getXcoordinate();
+		final double yCoord = aCoordinates.getYcoordinate();
+		final int lowerBound = aIsOpen ? aRadius - 1 : 0;
+		for (int x = -aRadius; x <= aRadius; x++)
+			for (int y = -aRadius; y <= aRadius; y++)
+			{
+				final int dist = Math.abs(x) + Math.abs(y);
+				if (!aIsOpen || (dist <= aRadius && dist >= lowerBound))
+				{
+					if (xCoord + x >= 0 && yCoord + y >= 0 //
+							&& xCoord + x < aImageProcessor.getWidth() && yCoord + y < aImageProcessor.getHeight())
+					{
+						final int colour = aIsOpen ? aColour : lightenColour(aColour, ((double) aRadius - Math.max(x, y)) / aRadius);
+						aImageProcessor.setf((int) xCoord + x, (int) yCoord + y, colour);
 					}
 				}
 			}
@@ -365,16 +411,16 @@ public class NucleiDataVisualiser
 			{
 				if (nucleus.isTrueNucleus())
 				{
-					drawCirle(nucleus, ip, aRadius, Color.GREEN.getRGB(), false);
+					drawCirle(nucleus, ip, aRadius, Color.GREEN.getRGB(), false, null);
 				}
 				else
 				{
-					drawCirle(nucleus, ip, aRadius, Color.RED.getRGB(), false);
+					drawCirle(nucleus, ip, aRadius, Color.RED.getRGB(), false, null);
 				}
 
 				if (nucleus.isSingleCell())
 				{
-					drawCirle(nucleus, ip, aRadius, Color.YELLOW.getRGB(), true);
+					drawCirle(nucleus, ip, aRadius, Color.YELLOW.getRGB(), true, null);
 				}
 			}
 
@@ -494,21 +540,21 @@ public class NucleiDataVisualiser
 		final int radLow = (aRadius - 2) * (aRadius - 2);
 		for (int x = -aRadius; x <= aRadius; x++)
 			for (int y = -aRadius; y <= aRadius; y++)
-			// for (int z = -aRadius; z <= aRadius; z++)
-			// {
-			{
-				final int dist = x * x + y * y;
-				if ((dist <= rad && !aIsOpen) || (dist < rad && dist >= radLow && aIsOpen))
+				for (int z = -aRadius; z <= aRadius; z++)
 				{
-					if (xCoord + x >= 0 && yCoord + y >= 0 && zCoord >= 0 //
-							&& xCoord + x < aImageStack.getWidth() && yCoord + y < aImageStack.getHeight() && zCoord < aImageStack.getSize())
 					{
-						final int colour = aIsOpen ? aColour : lightenColour(aColour, ((aRadius - Math.sqrt(x * x + y * y) + 1) / (aRadius + 1)));
-						aImageStack.setVoxel((int) xCoord + x, (int) yCoord + y, (int) zCoord, colour);
+						final int dist = x * x + y * y;
+						if ((dist <= rad && !aIsOpen) || (dist < rad && dist >= radLow && aIsOpen))
+						{
+							if (xCoord + x >= 0 && yCoord + y >= 0 && zCoord >= 0 //
+									&& xCoord + x < aImageStack.getWidth() && yCoord + y < aImageStack.getHeight() && zCoord < aImageStack.getSize())
+							{
+								final int colour = aIsOpen ? aColour : lightenColour(aColour, ((aRadius - Math.sqrt(x * x + y * y) + 1) / (aRadius + 1)));
+								aImageStack.setVoxel((int) xCoord + x, (int) yCoord + y, (int) zCoord, colour);
+							}
+						}
 					}
-					// }
 				}
-			}
 	}
 
 
@@ -517,7 +563,7 @@ public class NucleiDataVisualiser
 	 * choice of this is given with a parameter.
 	 *
 	 * @param aNucleus
-	 *            The Nucleus which provides the Coordinates for the cube
+	 *            The Nucleus which provides the Coordinates for the square
 	 * @param aImageProcessor
 	 *            The ImageProcessor in which the square will be drawn
 	 * @param aColour
@@ -644,9 +690,9 @@ public class NucleiDataVisualiser
 	 * @param aYTitle
 	 * @return
 	 */
-	public static void plotData(final float[][] aData, final Paint[] aColours, final String aTitle, final String aXTitle, final String aYTitle)
+	public static ChartPanel plotData(final float[][] aData, final Paint[] aColours, final String aTitle, final String aXTitle, final String aYTitle)
 	{
-		plotData(aData, aColours, aTitle, aXTitle, aYTitle, null);
+		return plotData(aData, aColours, aTitle, aXTitle, aYTitle, null);
 	}
 
 
@@ -726,7 +772,8 @@ public class NucleiDataVisualiser
 	 * @param aCallback
 	 *            The callback object that will be used to handle any mouse clicks and moves. Can be null.
 	 */
-	public static void plotDistanceHistogram(final double[] aXData, final double[] aYData, final String aTitle, final String aXAxis, final String aYAxis, final IChartMouseEventCallback aCallback)
+	public static ChartPanel plotDistanceHistogram(final double[] aXData, final double[][] aYData, final String aTitle, final String aXAxis, final String aYAxis, final String[] aYSeriesName,
+			final IChartMouseEventCallback aCallback)
 	{
 		final XYSeriesCollection histogram_plots = new XYSeriesCollection();
 		final LookupPaintScale lut = createLUT(1);
@@ -736,21 +783,24 @@ public class NucleiDataVisualiser
 		// get the right zoom-level
 		int firstNotNull = -1;
 		int lastNotNull = -1;
-		series = new XYSeries(aYAxis);
-		for (int j = 0; j < aYData.length; j++)
+		for (int ySet = 0; ySet < aYData.length; ySet++)
 		{
-			final double xValue = aXData != null ? aXData[j] : j;
-			series.add(xValue, aYData[j]);
-			if (aYData[j] != 0)
+			series = new XYSeries(aYSeriesName[ySet]);
+			for (int j = 0; j < aYData[ySet].length; j++)
 			{
-				lastNotNull = j;
-				if (firstNotNull < 0)
+				final double xValue = aXData != null ? aXData[j] : j;
+				series.add(xValue, aYData[ySet][j]);
+				if (ySet == 0 && aYData[ySet][j] != 0)
 				{
-					firstNotNull = j;
+					lastNotNull = j;
+					if (firstNotNull < 0)
+					{
+						firstNotNull = j;
+					}
 				}
 			}
+			histogram_plots.addSeries(series);
 		}
-		histogram_plots.addSeries(series);
 
 		if (firstNotNull >= 0)
 		{
@@ -776,7 +826,7 @@ public class NucleiDataVisualiser
 				final double rangeMargin = 0.05 * (aXData[lastNotNull] - aXData[firstNotNull]);
 				double lowerRange = aXData[firstNotNull] - rangeMargin;
 				double upperRange = aXData[lastNotNull] + rangeMargin;
-				if (lowerRange == upperRange)
+				if (Math.abs(lowerRange - upperRange) < .0000001)
 				{
 					lowerRange--;
 					upperRange++;
@@ -807,7 +857,11 @@ public class NucleiDataVisualiser
 			window.validate();
 			window.setSize(screenFitDim);
 			window.setVisible(true);
+
+			return chartPanel;
 		}
+
+		return null;
 	}
 
 }

@@ -1,5 +1,8 @@
 package data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A point in a 3D space.
  *
@@ -21,6 +24,51 @@ public class Coordinates
 			result.setZcoordinate(Float.parseFloat(data[2]));
 		}
 
+		return result;
+	}
+
+
+	public static List<List<Coordinates>> organizeBySlice(final List<Coordinates> aCoordinates)
+	{
+		final int currentMaxSlice = -1;
+		final List<List<Coordinates>> organizedCoords = new ArrayList<>();
+
+		for (final Coordinates coord : aCoordinates)
+		{
+			final int zCoord = (int) coord.getZcoordinate();
+			if (zCoord > currentMaxSlice)
+			{
+				for (int i = currentMaxSlice; i <= zCoord; i++)
+				{
+					organizedCoords.add(new ArrayList<>());
+				}
+			}
+			organizedCoords.get(zCoord).add(coord);
+		}
+
+		return organizedCoords;
+	}
+
+
+	/**
+	 * Split a String into three separate coordinates (x, y and z). The String can be split along the tab or comma characters.
+	 *
+	 * @param aString
+	 *            The String to split
+	 * @return The Coordinates object that can be constructed from the String
+	 */
+	public static Coordinates parseCoordinates(final String aString)
+	{
+		String[] coords;
+		if (aString.contains("\t"))
+		{
+			coords = aString.split("\t");
+		}
+		else
+		{
+			coords = aString.split(",");
+		}
+		final Coordinates result = new Coordinates(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]), Double.parseDouble(coords[2]));
 		return result;
 	}
 

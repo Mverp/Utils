@@ -67,6 +67,7 @@ public class NucleusTest
 	}
 
 
+	@SuppressWarnings("unlikely-arg-type") // That's the whole point of the test
 	@Test
 	public void testEquals()
 	{
@@ -282,7 +283,8 @@ public class NucleusTest
 	@Test
 	public void testSetFrstMaximumValue()
 	{
-		final double value = new Random().nextDouble();
+		final Random rand = new Random();
+		final double value = rand.nextDouble();
 		final Nucleus nuc = getRandomNucleus();
 		nuc.setFrstMaximumValue(value);
 		assertTrue(nuc.getFrstMaximumValue() == value);
@@ -292,7 +294,8 @@ public class NucleusTest
 	@Test
 	public void testSetLocalIntensity()
 	{
-		final double value = new Random().nextDouble();
+		final Random rand = new Random();
+		final double value = rand.nextDouble();
 		final Nucleus nuc = getRandomNucleus();
 		nuc.setLocalIntensity(value);
 		assertTrue(nuc.getLocalIntensity() == value);
